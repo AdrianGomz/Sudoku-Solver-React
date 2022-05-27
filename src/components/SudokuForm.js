@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 const SudokuForm = () => {
-  let puzzle = [
+  let empty_puzzle = [
     ["", "", "", "", "", "", "", "", ""],
     ["", "", "", "", "", "", "", "", ""],
     ["", "", "", "", "", "", "", "", ""],
@@ -12,7 +12,7 @@ const SudokuForm = () => {
     ["", "", "", "", "", "", "", "", ""],
     ["", "", "", "", "", "", "", "", ""],
   ];
-  const [vals, setVals] = useState(puzzle);
+  const [vals, setVals] = useState(empty_puzzle);
   let next_empty = (puzzle) => {
     for (let row = 0; row < 9; row++) {
       for (let col = 0; col < 9; col++) {
@@ -25,15 +25,18 @@ const SudokuForm = () => {
   };
 
   let is_valid = (guess, puzzle, row, col) => {
+    if (guess === "") {
+      return true;
+    }
     // check row
     for (let colCurrent = 0; colCurrent < 9; colCurrent++) {
-      if (puzzle[row][colCurrent] === guess) {
+      if (puzzle[row][colCurrent] === guess && colCurrent !== col) {
         return false;
       }
     }
     //   check column
     for (let rowCurrent = 0; rowCurrent < 9; rowCurrent++) {
-      if (puzzle[rowCurrent][col] === guess) {
+      if (puzzle[rowCurrent][col] === guess && rowCurrent !== row) {
         return false;
       }
     }
@@ -43,7 +46,10 @@ const SudokuForm = () => {
     for (let row_increment = 0; row_increment < 3; row_increment++) {
       for (let col_increment = 0; col_increment < 3; col_increment++) {
         if (
-          puzzle[start_row + row_increment][start_col + col_increment] === guess
+          puzzle[start_row + row_increment][start_col + col_increment] ===
+            guess &&
+          start_row + row_increment !== row &&
+          start_col + col_increment !== col
         ) {
           return false;
         }
@@ -68,6 +74,16 @@ const SudokuForm = () => {
       puzzle[row][col] = "";
     }
     return false;
+  };
+  let validate_puzzle = (puzzle) => {
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 9; col++) {
+        if (is_valid(puzzle[row][col], puzzle, row, col) === false) {
+          return false;
+        }
+      }
+    }
+    return true;
   };
 
   const validate_input = (s) => {
@@ -98,10 +114,15 @@ const SudokuForm = () => {
   let handleSubmit = (e) => {
     e.preventDefault();
     let solvedPuzzle = [...vals];
-    console.log(vals, solvedPuzzle);
-    solve(solvedPuzzle);
-    console.log(vals, solvedPuzzle);
-    setVals(solvedPuzzle);
+    if (validate_puzzle(solvedPuzzle)) {
+      solve(solvedPuzzle);
+      setVals(solvedPuzzle);
+    } else alert("Not a valid input");
+  };
+
+  let clearForm = (e) => {
+    e.preventDefault();
+    setVals(empty_puzzle);
   };
 
   return (
@@ -126,6 +147,7 @@ const SudokuForm = () => {
             </div>
           );
         })}
+        <button onClick={clearForm}>Clear</button>
         <input type="submit" value="Enviar" />
       </form>
     </div>

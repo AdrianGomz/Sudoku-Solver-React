@@ -12,7 +12,10 @@ const SudokuForm = () => {
     ["", "", "", "", "", "", "", "", ""],
     ["", "", "", "", "", "", "", "", ""],
   ];
-  const [vals, setVals] = useState(empty_puzzle);
+
+  const [puzzleVals, setVals] = useState(empty_puzzle);
+
+  //returns row and column of the next empty tile on the puzzle
   let next_empty = (puzzle) => {
     for (let row = 0; row < 9; row++) {
       for (let col = 0; col < 9; col++) {
@@ -24,6 +27,7 @@ const SudokuForm = () => {
     return [null, null];
   };
 
+  // returns a boolean that tell us if a specific value is valid
   let is_valid = (guess, puzzle, row, col) => {
     if (guess === "") {
       return true;
@@ -58,6 +62,7 @@ const SudokuForm = () => {
     return true;
   };
 
+  // Solves the given puzzle in place
   let solve = (puzzle) => {
     const [row, col] = next_empty(puzzle);
     if (row === null) {
@@ -75,6 +80,8 @@ const SudokuForm = () => {
     }
     return false;
   };
+
+  // Validate that the puzzle given by the user is valid
   let validate_puzzle = (puzzle) => {
     for (let row = 0; row < 9; row++) {
       for (let col = 0; col < 9; col++) {
@@ -86,6 +93,7 @@ const SudokuForm = () => {
     return true;
   };
 
+  // Validate that the input in each tile is an integer number between 1 and 9 or an empty string
   const validate_input = (s) => {
     if (s === "") {
       return true;
@@ -100,26 +108,30 @@ const SudokuForm = () => {
       return true;
     }
   };
+
+  // Sets the new value of puzzle values
   const handleChange = (e) => {
     if (validate_input(e.target.value)) {
       let col = e.target.getAttribute("col");
       let row = e.target.getAttribute("row");
-      let newVals = [...vals];
+      let newVals = [...puzzleVals];
 
       newVals[row][col] = e.target.value === "" ? "" : Number(e.target.value);
       setVals(newVals);
-      console.log(vals);
     }
   };
+
+  //Checks if input is valid and if so, solves the puzzle
   let handleSubmit = (e) => {
     e.preventDefault();
-    let solvedPuzzle = [...vals];
+    let solvedPuzzle = [...puzzleVals];
     if (validate_puzzle(solvedPuzzle)) {
       solve(solvedPuzzle);
       setVals(solvedPuzzle);
     } else alert("Not a valid input");
   };
 
+  // sets puzzle values to empty strings
   let clearForm = (e) => {
     e.preventDefault();
     setVals(empty_puzzle);
@@ -128,7 +140,7 @@ const SudokuForm = () => {
   return (
     <div className="PuzzleContainer">
       <form onSubmit={handleSubmit}>
-        {vals.map((curr, row) => {
+        {puzzleVals.map((curr, row) => {
           return (
             <div className="row" key={row}>
               {curr.map((tile, col) => {
@@ -147,8 +159,10 @@ const SudokuForm = () => {
             </div>
           );
         })}
-        <button onClick={clearForm}>Clear</button>
-        <input type="submit" value="Enviar" />
+        <button className="btn" onClick={clearForm}>
+          Clear
+        </button>
+        <input className="btn" type="submit" value="Enviar" />
       </form>
     </div>
   );
